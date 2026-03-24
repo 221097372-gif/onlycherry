@@ -69,20 +69,20 @@
             navigator.serviceWorker.register('sw.js');
         }
     </script>
-    <footer class="bg-zinc-900 border-t border-zinc-800 p-6 mt-10 text-center">
-    <p class="text-zinc-500 text-xs mb-4 uppercase tracking-widest font-bold">Encuéntranos en redes</p>
-    <div class="flex justify-center gap-8">
-        <a href="https://instagram.com/tu_perfil" target="_blank" class="text-white text-2xl hover:text-red-600 transition-colors">
-            <i class="fab fa-instagram"></i>
-        </a>
-        <a href="https://facebook.com/tu_pagina" target="_blank" class="text-white text-2xl hover:text-red-600 transition-colors">
-            <i class="fab fa-facebook"></i>
-        </a>
-        <a href="https://tiktok.com/@tu_cuenta" target="_blank" class="text-white text-2xl hover:text-red-600 transition-colors">
-            <i class="fab fa-tiktok"></i>
-        </a>
-    </div>
-    <p class="text-zinc-700 text-[10px] mt-6">Powered by OnlyCherry Tech</p>
-    </footer>
+<footer id="main-footer" class="p-10 border-t border-zinc-900 text-center opacity-50">
+    <div id="social-links" class="flex justify-center gap-6 mb-4"></div>
+    <p id="footer-brand" class="text-[10px] tracking-widest uppercase font-bold text-zinc-600"></p>
+</footer>
+
+<script>
+    // Lógica para pintar las redes sociales si existen
+    const container = document.getElementById('social-links');
+    if(CONFIG.instagram) container.innerHTML += `<a href="${CONFIG.instagram}" class="text-white text-xl"><i class="fab fa-instagram"></i></a>`;
+    if(CONFIG.facebook) container.innerHTML += `<a href="${CONFIG.facebook}" class="text-white text-xl"><i class="fab fa-facebook"></i></a>`;
+    if(CONFIG.tiktok) container.innerHTML += `<a href="${CONFIG.tiktok}" class="text-white text-xl"><i class="fab fa-tiktok"></i></a>`;
+    
+    document.getElementById('footer-brand').innerText = `© 2026 ${CONFIG.nombre} | Powered by Arq. Tech`;
+</script>
+    
 </body>
 </html>
