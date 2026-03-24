@@ -12,6 +12,19 @@
         .product-card { transition: transform 0.2s; }
         .product-card:active { transform: scale(0.97); }
     </style>
+    <script src="config.js"></script> <style id="dynamic-styles"></style> <script>
+    // Inyectar colores de la configuración
+    document.getElementById('dynamic-styles').innerHTML = `
+        :root {
+            --primary: ${CONFIG.colorPrimario};
+            --bg: ${CONFIG.colorFondo};
+        }
+        .text-primary { color: var(--primary); }
+        .bg-primary { border-color: var(--primary); }
+        .border-primary { border-color: var(--primary); }
+    `;
+    </script>
+    
 </head>
 <body class="bg-black text-gray-100 font-sans pb-24">
 
