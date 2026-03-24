@@ -5,8 +5,8 @@ const CONFIG = {
     whatsapp: "525621300137",
     
     // Identidad Visual (Cámbialos y verás la magia)
-    colorPrimario: "#dc2626", // Rojo Cherry
-    colorFondo: "#000000",   // Negro
+    colorPrimario: "#FF0AFF", // Rojo Cherry
+    colorFondo: "#521421",   // Negro
     fuente: "'Inter', sans-serif",
 
     // Redes Sociales (Deja vacío "" si no tiene)
