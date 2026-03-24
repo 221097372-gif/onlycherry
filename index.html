@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OnlyCherry | Catálogo Pro</title>
+    <title id="page-title"></title>
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -29,7 +29,7 @@
 <body class="bg-black text-gray-100 font-sans pb-24">
 
     <header class="p-4 flex justify-between items-center bg-zinc-900 sticky top-0 z-50 shadow-2xl border-b border-red-900">
-        <h1 class="text-3xl font-black tracking-tighter text-red-600 italic">ONLYCHERRY</h1>
+        <h1 id="header-name" class="text-3xl font-black tracking-tighter italic"></h1>
         <button onclick="toggleCart()" class="relative bg-zinc-800 p-3 rounded-xl border border-zinc-700">
             <i class="fas fa-shopping-cart text-xl text-white"></i>
             <span id="cart-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-full hidden">0</span>
