@@ -37,24 +37,23 @@ allProducts = rows.map(row => {
 }
 
 // Pintar productos en pantalla
-function renderProducts(products) {
-    const catalog = document.getElementById('catalog');
-    catalog.innerHTML = products.map((p, index) => `
-        <div class="product-card bg-zinc-900 rounded-3xl overflow-hidden border border-zinc-800 flex flex-col h-full shadow-lg">
-            <img src="${p.imagen}" class="w-full h-48 object-cover bg-zinc-800" alt="${p.nombre}">
-            <div class="p-4 flex flex-col flex-1">
-                <h3 class="font-bold text-base leading-tight h-12 overflow-hidden text-white">${p.nombre}</h3>
-                <p class="text-[11px] text-zinc-500 mt-1 line-clamp-2">${p.descripcion}</p>
-                <div class="mt-auto pt-4 flex justify-between items-center">
-                    <span class="text-red-500 font-black text-xl">$${p.precio}</span>
-                    <button onclick="addToCart(${allProducts.indexOf(p)})" class="bg-white text-black p-3 rounded-xl hover:bg-red-600 hover:text-white transition-colors">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                </div>
+// Actualiza esta parte en tu renderProducts
+catalog.innerHTML = products.map((p, index) => `
+    <div onclick="showProductDetail(${allProducts.indexOf(p)})" class="product-card bg-zinc-900 rounded-3xl overflow-hidden border border-zinc-800 flex flex-col h-full shadow-lg cursor-pointer">
+        <img src="${p.imagen}" class="w-full h-48 object-cover bg-zinc-800" alt="${p.nombre}">
+        <div class="p-4 flex flex-col flex-1">
+            <h3 class="font-bold text-base leading-tight h-12 overflow-hidden text-white">${p.nombre}</h3>
+            <p class="text-[11px] text-zinc-500 mt-1 line-clamp-2">${p.descripcion}</p>
+            <div class="mt-auto pt-4 flex justify-between items-center">
+                <span class="text-primary font-black text-xl">$${p.precio}</span>
+                <button onclick="event.stopPropagation(); addToCart(${allProducts.indexOf(p)})" class="bg-white text-black p-3 rounded-xl hover:bg-primary hover:text-white transition-colors">
+                    <i class="fas fa-plus"></i>
+                </button>
             </div>
         </div>
-    `).join('');
-}
+    </div>
+`).join('');
+
 
 // Manejo del Carrito
 function addToCart(index) {
