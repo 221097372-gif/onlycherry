@@ -135,3 +135,24 @@ function filterProducts(cat) {
 }
 
 loadData();
+function showProductDetail(index) {
+    const p = allProducts[index];
+    const detailModal = document.createElement('div');
+    detailModal.id = 'detail-modal';
+    detailModal.className = 'fixed inset-0 bg-black/95 z-[70] flex flex-col p-6 overflow-y-auto animate-fade-in';
+    
+    detailModal.innerHTML = `
+        <button onclick="this.parentElement.remove()" class="absolute top-6 right-6 text-white text-4xl">&times;</button>
+        <img src="${p.imagen}" class="w-full aspect-square object-cover rounded-3xl mb-6 shadow-2xl">
+        <span class="text-primary font-bold uppercase tracking-widest text-xs">${p.categoria}</span>
+        <h2 class="text-3xl font-black text-white my-2">${p.nombre}</h2>
+        <p class="text-zinc-400 text-lg leading-relaxed mb-8">${p.descripcion}</p>
+        <div class="mt-auto flex justify-between items-center bg-zinc-900 p-6 rounded-3xl border border-zinc-800">
+            <span class="text-3xl font-black text-white">$${p.precio}</span>
+            <button onclick="addToCart(${index}); this.parentElement.parentElement.remove()" class="bg-primary text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-2">
+                <i class="fas fa-cart-plus"></i> AGREGAR
+            </button>
+        </div>
+    `;
+    document.body.appendChild(detailModal);
+}
