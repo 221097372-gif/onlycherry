@@ -3,6 +3,8 @@ const CONFIG = {
     nombre: "OnlyCherry", 
     eslogan: "Lencería & Sex Shop Premium",
     whatsapp: "525621300137",
+    locationUrl: "https://maps.app.goo.gl/tu-ubicacion-aqui", // Link de compartir de Google Maps
+    
     
     // Identidad Visual (Cámbialos y verás la magia)
     colorPrimario: "#FF0AFF", // Rojo Cherry
