@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OnlyCherry | Catálogo Pro</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .product-card { transition: transform 0.2s; }
+        .product-card:active { transform: scale(0.97); }
+    </style>
+</head>
+<body class="bg-black text-gray-100 font-sans pb-24">
+
+    <header class="p-4 flex justify-between items-center bg-zinc-900 sticky top-0 z-50 shadow-2xl border-b border-red-900">
+        <h1 class="text-3xl font-black tracking-tighter text-red-600 italic">ONLYCHERRY</h1>
+        <button onclick="toggleCart()" class="relative bg-zinc-800 p-3 rounded-xl border border-zinc-700">
+            <i class="fas fa-shopping-cart text-xl text-white"></i>
+            <span id="cart-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-full hidden">0</span>
+        </button>
+    </header>
+
+    <nav id="filters" class="p-4 flex gap-2 overflow-x-auto no-scrollbar bg-black sticky top-20 z-40"></nav>
+
+    <main id="catalog" class="p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="col-span-full text-center py-20 text-zinc-500 flex flex-col items-center gap-4">
+            <i class="fas fa-spinner fa-spin text-4xl text-red-600"></i>
+            <p>Cargando el catálogo premium...</p>
+        </div>
+    </main>
+
+    <div id="cart-modal" class="fixed inset-0 bg-black/95 z-[60] hidden flex flex-col p-6 backdrop-blur-sm">
+        <div class="flex justify-between items-center mb-8 border-b border-zinc-800 pb-4">
+            <h2 class="text-3xl font-extrabold text-white">Tu Pedido</h2>
+            <button onclick="toggleCart()" class="text-zinc-500 text-5xl hover:text-red-600">&times;</button>
+        </div>
+        <div id="cart-items" class="flex-1 overflow-y-auto space-y-5 pr-2 no-scrollbar"></div>
+        <div class="border-t border-zinc-800 pt-6 mt-6">
+            <div class="flex justify-between text-2xl font-black mb-8">
+                <span class="text-zinc-400">TOTAL:</span>
+                <span id="cart-total" class="text-green-500">$0</span>
+            </div>
+            <button onclick="sendOrder()" class="w-full bg-green-600 hover:bg-green-700 text-white py-5 rounded-3xl font-black text-xl shadow-lg flex justify-center items-center gap-3 transition-colors">
+                <i class="fab fa-whatsapp text-3xl"></i> ENVIAR PEDIDO POR WHATSAPP
+            </button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Registro del Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
