@@ -59,16 +59,17 @@ function renderProducts(products) {
 function showProductDetail(index) {
     const p = allProducts[index];
     const detailModal = document.createElement('div');
-    detailModal.className = 'fixed inset-0 bg-black/98 z-[70] flex flex-col p-6 animate-fade-in';
+    // CAMBIO CLAVE: Usamos bg-zinc-950 (100% opaco) para fondo sólido
+    detailModal.className = 'fixed inset-0 bg-zinc-950 z-[70] flex flex-col p-6 animate-fade-in';
     detailModal.innerHTML = `
-        <button onclick="this.parentElement.remove()" class="absolute top-4 right-6 text-white text-5xl z-10">&times;</button>
-        <div class="flex-1 overflow-y-auto no-scrollbar">
+        <button onclick="this.parentElement.remove()" class="absolute top-4 right-6 text-white text-5xl z-10">×</button>
+        <div class="flex-1 overflow-y-auto no-scrollbar pb-24">
             <img src="${p.imagen}" class="w-full aspect-square object-cover rounded-3xl mb-6 shadow-2xl">
             <span class="text-primary font-bold uppercase tracking-widest text-[10px]">${p.categoria}</span>
             <h2 class="text-3xl font-black text-white my-2">${p.nombre}</h2>
-            <p class="text-zinc-400 text-base leading-relaxed mb-24">${p.descripcion}</p>
+            <p class="text-zinc-300 text-base leading-relaxed mb-10">${p.descripcion}</p>
         </div>
-        <div class="mt-auto flex justify-between items-center bg-zinc-900 p-6 rounded-3xl border border-zinc-800">
+        <div class="mt-auto flex justify-between items-center bg-zinc-900 p-6 rounded-3xl border border-zinc-800 shadow-2xl">
             <span class="text-3xl font-black text-white">$${p.precio}</span>
             <button onclick="addToCart(${index}); this.parentElement.parentElement.remove()" class="bg-primary text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-2 active:scale-95 transition-transform">
                 <i class="fas fa-cart-plus"></i> AGREGAR
