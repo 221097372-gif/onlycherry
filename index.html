@@ -13,10 +13,11 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .product-card { transition: transform 0.2s; }
         .product-card:active { transform: scale(0.95); }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
     </style>
     <script>
+        // Esta función inyecta la "personalidad" del negocio apenas carga la página
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('dynamic-styles').innerHTML = `
                 :root { --primary: ${CONFIG.colorPrimario}; --bg: ${CONFIG.colorFondo}; }
@@ -24,7 +25,7 @@
                 .bg-primary { background-color: var(--primary) !important; }
                 .border-primary { border-color: var(--primary) !important; }
             `;
-            document.title = `${CONFIG.nombre} | Catálogo`;
+            document.title = CONFIG.nombre;
             const headerName = document.getElementById('header-name');
             headerName.innerText = CONFIG.nombre.toUpperCase();
             headerName.style.color = CONFIG.colorPrimario;
@@ -34,9 +35,9 @@
 <body class="bg-black text-gray-100 font-sans pb-24">
 
     <header class="p-4 flex justify-between items-center bg-zinc-900 sticky top-0 z-50 shadow-2xl border-b border-primary">
-        <h1 id="header-name" class="text-3xl font-black tracking-tighter italic"></h1>
+        <h1 id="header-name" class="text-2xl font-black tracking-tighter italic"></h1>
         <div class="flex gap-2">
-            <a href="javascript:void(0)" onclick="window.open(CONFIG.locationUrl)" class="bg-zinc-800 p-3 rounded-xl border border-zinc-700 text-white">
+            <a href="javascript:void(0)" onclick="window.open(CONFIG.locationUrl)" class="bg-zinc-800 p-3 rounded-xl border border-zinc-700">
                 <i class="fas fa-map-marker-alt text-xl text-primary"></i>
             </a>
             <button onclick="toggleCart()" class="relative bg-zinc-800 p-3 rounded-xl border border-zinc-700">
@@ -46,44 +47,47 @@
         </div>
     </header>
 
-    <nav id="filters" class="p-4 flex gap-2 overflow-x-auto no-scrollbar bg-black sticky top-20 z-40"></nav>
+    <nav id="filters" class="p-4 flex gap-2 overflow-x-auto no-scrollbar bg-black sticky top-[72px] z-40"></nav>
 
     <main id="catalog" class="p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="col-span-full text-center py-20 text-zinc-500 flex flex-col items-center gap-4">
-            <i class="fas fa-spinner fa-spin text-4xl text-primary"></i>
+        <div class="col-span-full text-center py-20 text-zinc-500">
+            <i class="fas fa-spinner fa-spin text-4xl text-primary mb-4"></i>
             <p>Cargando catálogo premium...</p>
         </div>
     </main>
 
-    <div id="cart-modal" class="fixed inset-0 bg-black/95 z-[60] hidden flex flex-col p-6 backdrop-blur-sm">
+    <div id="cart-modal" class="fixed inset-0 bg-black/95 z-[60] hidden flex flex-col p-6 backdrop-blur-md">
         <div class="flex justify-between items-center mb-8 border-b border-zinc-800 pb-4">
             <h2 class="text-3xl font-extrabold text-white">Tu Pedido</h2>
             <button onclick="toggleCart()" class="text-zinc-500 text-5xl">&times;</button>
         </div>
-        <div id="cart-items" class="flex-1 overflow-y-auto space-y-5 no-scrollbar"></div>
+        <div id="cart-items" class="flex-1 overflow-y-auto space-y-4 no-scrollbar"></div>
         <div class="border-t border-zinc-800 pt-6 mt-6">
-            <div class="flex justify-between text-2xl font-black mb-8">
+            <div class="flex justify-between text-2xl font-black mb-6">
                 <span class="text-zinc-400">TOTAL:</span>
                 <span id="cart-total" class="text-green-500">$0</span>
             </div>
-            <button onclick="sendOrder()" class="w-full bg-green-600 text-white py-5 rounded-3xl font-black text-xl flex justify-center items-center gap-3">
+            <button onclick="sendOrder()" class="w-full bg-green-600 text-white py-5 rounded-3xl font-black text-xl flex justify-center items-center gap-3 active:scale-95 transition-transform">
                 <i class="fab fa-whatsapp text-3xl"></i> ENVIAR POR WHATSAPP
             </button>
         </div>
     </div>
 
-    <footer id="main-footer" class="p-10 border-t border-zinc-900 text-center opacity-50">
-        <div id="social-links" class="flex justify-center gap-6 mb-4"></div>
-        <p id="footer-brand" class="text-[10px] tracking-widest uppercase font-bold text-zinc-600"></p>
+    <footer class="p-10 border-t border-zinc-900 text-center opacity-40">
+        <div id="social-links" class="flex justify-center gap-8 mb-4"></div>
+        <p id="footer-brand" class="text-[9px] tracking-widest uppercase font-bold text-zinc-600"></p>
     </footer>
 
     <script src="app.js"></script>
     <script>
+        // Pintar Redes Sociales dinámicamente
         const container = document.getElementById('social-links');
-        if(CONFIG.instagram) container.innerHTML += `<a href="${CONFIG.instagram}" target="_blank" class="text-white text-xl"><i class="fab fa-instagram"></i></a>`;
-        if(CONFIG.facebook) container.innerHTML += `<a href="${CONFIG.facebook}" target="_blank" class="text-white text-xl"><i class="fab fa-facebook"></i></a>`;
-        if(CONFIG.tiktok) container.innerHTML += `<a href="${CONFIG.tiktok}" target="_blank" class="text-white text-xl"><i class="fab fa-tiktok"></i></a>`;
+        if(CONFIG.instagram) container.innerHTML += `<a href="${CONFIG.instagram}" target="_blank" class="text-white text-2xl"><i class="fab fa-instagram"></i></a>`;
+        if(CONFIG.facebook) container.innerHTML += `<a href="${CONFIG.facebook}" target="_blank" class="text-white text-2xl"><i class="fab fa-facebook"></i></a>`;
+        if(CONFIG.tiktok) container.innerHTML += `<a href="${CONFIG.tiktok}" target="_blank" class="text-white text-2xl"><i class="fab fa-tiktok"></i></a>`;
         document.getElementById('footer-brand').innerText = `© 2026 ${CONFIG.nombre} | Powered by Arq. Tech`;
+        
+        // Activar el Service Worker para que la App sea veloz
         if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
     </script>
 </body>
