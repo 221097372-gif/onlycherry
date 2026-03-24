@@ -5,34 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title"></title>
     <link rel="manifest" href="manifest.json">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .product-card { transition: transform 0.2s; }
-        .product-card:active { transform: scale(0.97); }
-    </style>
-    <script src="config.js"></script> <style id="dynamic-styles"></style> <script>
-    // Inyectar colores de la configuración
-    document.getElementById('dynamic-styles').innerHTML = `
-        :root {
-            --primary: ${CONFIG.colorPrimario};
-            --bg: ${CONFIG.colorFondo};
-        }
-        .text-primary { color: var(--primary); }
-        .bg-primary { border-color: var(--primary); }
-        .border-primary { border-color: var(--primary); }
-    `;
-    </script>
+    <script src="config.js"></script> 
+<style id="dynamic-styles"></style> 
+<script>
+    // Aplicar Configuración Global al cargar
+    document.addEventListener("DOMContentLoaded", () => {
+        // 1. Inyectar Colores
+        document.getElementById('dynamic-styles').innerHTML = `
+            :root {
+                --primary: ${CONFIG.colorPrimario};
+                --bg: ${CONFIG.colorFondo};
+            }
+            .text-primary { color: var(--primary) !important; }
+            .bg-primary { background-color: var(--primary) !important; }
+            .border-primary { border-color: var(--primary) !important; }
+        `;
+        
+        // 2. Inyectar Textos e Identidad
+        document.title = `${CONFIG.nombre} | Catálogo`;
+        const headerName = document.getElementById('header-name');
+        headerName.innerText = CONFIG.nombre.toUpperCase();
+        headerName.style.color = CONFIG.colorPrimario; // Color dinámico al logo
+    });
+</script>
     
 </head>
 <body class="bg-black text-gray-100 font-sans pb-24">
-
-    <header class="p-4 flex justify-between items-center bg-zinc-900 sticky top-0 z-50 shadow-2xl border-b border-red-900">
+    <header class="p-4 flex justify-between items-center bg-zinc-900 sticky top-0 z-50 shadow-2xl border-b border-primary">
         <h1 id="header-name" class="text-3xl font-black tracking-tighter italic"></h1>
         <button onclick="toggleCart()" class="relative bg-zinc-800 p-3 rounded-xl border border-zinc-700">
             <i class="fas fa-shopping-cart text-xl text-white"></i>
-            <span id="cart-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-full hidden">0</span>
+            <span id="cart-count" class="absolute -top-2 -right-2 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded-full hidden">0</span>
         </button>
     </header>
 
