@@ -15,8 +15,9 @@
         .product-card:active { transform: scale(0.95); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
-        /* Quantity selector style in modal */
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        /* Evitar que el modal se vea raro en pantallas largas */
+        #detail-modal { max-width: 600px; margin: 0 auto; left: 0; right: 0; }
     </style>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -25,7 +26,6 @@
                 .text-primary { color: var(--primary) !important; }
                 .bg-primary { background-color: var(--primary) !important; }
                 .border-primary { border-color: var(--primary) !important; }
-                /* Terms link color */
                 .terms-link { color: var(--primary); text-decoration: underline; }
             `;
             document.title = CONFIG.nombre;
@@ -59,15 +59,16 @@
         </div>
     </main>
 
-    <div id="detail-modal" class="fixed inset-0 bg-zinc-950 z-[70] hidden flex flex-col p-6 animate-fade-in no-scrollbar overflow-y-auto">
-        <button onclick="closeDetail()" class="absolute top-4 right-6 text-white text-5xl z-10">×</button>
-        <div id="detail-content" class="flex-1 pb-24">
+    <div id="detail-modal" class="fixed inset-0 bg-zinc-950 z-[70] hidden flex flex-col p-6 animate-fade-in no-scrollbar">
+        <button onclick="closeDetail()" class="absolute top-4 right-6 text-white text-5xl z-30 bg-black/50 w-12 h-12 rounded-full">×</button>
+        
+        <div id="detail-scroll-area" class="flex-1 overflow-y-auto no-scrollbar pb-32">
             <img id="detail-img" src="" class="w-full aspect-square object-cover rounded-3xl mb-6 shadow-2xl">
             <div class="flex justify-between items-center mb-2">
                 <span id="detail-cat" class="text-primary font-bold uppercase tracking-widest text-[10px]"></span>
                 <span id="detail-price" class="text-3xl font-black text-white">$0</span>
             </div>
-            <h2 id="detail-name" class="text-2xl font-black text-white mb-2"></h2>
+            <h2 id="detail-name" class="text-2xl font-black text-white mb-2 leading-tight"></h2>
             <p id="detail-desc" class="text-zinc-400 text-sm leading-relaxed mb-6"></p>
 
             <div class="mb-4">
@@ -85,10 +86,10 @@
             </div>
         </div>
 
-        <div class="fixed bottom-6 left-6 right-6 flex justify-between items-center bg-zinc-900 p-6 rounded-3xl border border-zinc-800 shadow-2xl z-20">
-            <span class="text-3xl font-black text-white">$${p.precio}</span>
+        <div class="fixed bottom-6 left-6 right-6 flex justify-between items-center bg-zinc-900 p-6 rounded-3xl border border-zinc-800 shadow-2xl z-20 max-w-[552px] margin-0-auto">
+            <span id="detail-footer-price" class="text-3xl font-black text-white">$0</span>
             <button id="add-to-cart-btn" class="bg-primary text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-2 active:scale-95 transition-transform">
-                <i class="fas fa-cart-plus text-xl"></i> AGREGAR
+                <i class="fas fa-cart-plus text-xl"></i> AGREGAR A MI PEDIDO
             </button>
         </div>
     </div>
@@ -121,8 +122,7 @@
             <h3 class="text-white font-bold text-sm uppercase tracking-widest flex items-center gap-2">
                 <i class="fas fa-file-invoice-dollar text-primary"></i> Resumen
             </h3>
-            <div id="cart-summary-items" class="text-sm space-y-3 text-zinc-300">
-                </div>
+            <div id="cart-summary-items" class="text-sm space-y-3 text-zinc-300"></div>
             <div class="flex justify-between text-base font-medium text-zinc-400 pt-2">
                 <span>Costo envío</span>
                 <span id="shipping-cost" class="font-bold text-white">$0</span>
@@ -154,23 +154,16 @@
 
     <script src="app.js"></script>
     <script>
-        // Lógica de Pintar Redes Sociales dinámicamente
         const container = document.getElementById('social-links');
         if(CONFIG.instagram) container.innerHTML += `<a href="${CONFIG.instagram}" target="_blank" class="text-white text-2xl"><i class="fab fa-instagram"></i></a>`;
         if(CONFIG.facebook) container.innerHTML += `<a href="${CONFIG.facebook}" target="_blank" class="text-white text-2xl"><i class="fab fa-facebook"></i></a>`;
         if(CONFIG.tiktok) container.innerHTML += `<a href="${CONFIG.tiktok}" target="_blank" class="text-white text-2xl"><i class="fab fa-tiktok"></i></a>`;
         document.getElementById('footer-brand').innerText = `© 2026 ${CONFIG.nombre} | Powered by Arq. Tech`;
-        
-        // Registrar Service Worker
         if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
-
-        // Lógica para habilitar botón de envío según checkbox
         const termsCheck = document.getElementById('terms-check');
         const sendBtn = document.getElementById('send-btn');
-        termsCheck.addEventListener('change', () => {
-            sendBtn.disabled = !termsCheck.checked;
-        });
+        termsCheck.addEventListener('change', () => { sendBtn.disabled = !termsCheck.checked; });
     </script>
 </body>
-                                                                        </html>
-                    
+    </html>
+    
