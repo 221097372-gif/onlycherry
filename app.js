@@ -3,31 +3,43 @@ let cart = [];
 let currentModalIndex = -1;
 
 document.addEventListener("DOMContentLoaded", () => {
+    // 1. Aplicar Colores
     document.getElementById('dynamic-styles').innerHTML = `
         :root { --primary: ${CONFIG.colorPrimario}; }
         .text-primary { color: var(--primary) !important; }
         .bg-primary { background-color: var(--primary) !important; }
         .border-primary { border-color: var(--primary) !important; }
     `;
+    
+    // 2. Textos Iniciales
     document.getElementById('header-name').innerText = CONFIG.nombre;
     document.getElementById('header-name').style.color = CONFIG.colorPrimario;
     
-    // Configurar links de legales
-    document.getElementById('terms-label').innerHTML = `Acepto los <a href="${CONFIG.linkTerminos}" target="_blank" class="text-primary underline">términos</a> y la <a href="${CONFIG.linkPrivacidad}" target="_blank" class="text-primary underline">política de privacidad</a> de ${CONFIG.nombre}.`;
+    // 3. Configurar Checkbox de Legales
+    const label = document.getElementById('terms-label');
+    if(label) {
+        label.innerHTML = `He leído los <a href="terminos.html" target="_blank" class="text-primary underline">términos</a> y la <a href="privacidad.html" target="_blank" class="text-primary underline">privacidad</a> de ${CONFIG.nombre}.`;
+    }
 
     const termsCheck = document.getElementById('terms-check');
-    termsCheck.addEventListener('change', () => { 
-        document.getElementById('send-btn').disabled = !termsCheck.checked; 
-    });
+    if(termsCheck) {
+        termsCheck.addEventListener('change', () => { 
+            document.getElementById('send-btn').disabled = !termsCheck.checked; 
+        });
+    }
 
     loadData();
 });
 
 async function loadData() {
+    const catalog = document.getElementById('catalog');
     try {
         const response = await fetch(CONFIG.sheetUrl);
+        if (!response.ok) throw new Error("No se pudo conectar con el Excel");
+        
         const data = await response.text();
         const rows = data.split('\n').slice(1);
+        
         allProducts = rows.map(row => {
             const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
             return {
@@ -35,28 +47,36 @@ async function loadData() {
                 categoria: cols[1]?.replace(/"/g, '').trim(),
                 precio: parseFloat(cols[2]) || 0,
                 imagen: cols[3]?.replace(/"/g, '').trim(),
-                descripcion: cols[4]?.replace(/"/g, '').trim() || "Consultar tallas."
+                descripcion: cols[4]?.replace(/"/g, '').trim() || "Consultar disponibilidad."
             };
-        }).filter(p => p.nombre);
+        }).filter(p => p.nombre && p.nombre.length > 2);
+
+        if(allProducts.length === 0) {
+            catalog.innerHTML = "<p class='col-span-2 text-center py-10 text-zinc-500'>No hay productos activos en el Excel.</p>";
+            return;
+        }
+
         renderCategories();
         renderProducts(allProducts);
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+        console.error(e);
+        catalog.innerHTML = `<p class='col-span-2 text-center py-10 text-red-500'>Error: Revisa el link de tu Excel en config.js</p>`;
+    }
 }
 
 function renderProducts(products) {
     const catalog = document.getElementById('catalog');
-    // CORRECCIÓN: Eliminado 'fixed' y 'absolute' que rompían el layout móvil
-    catalog.innerHTML = products.map((p) => `
-        <div onclick="showProductDetail(${allProducts.indexOf(p)})" class="product-card bg-zinc-900 rounded-3xl overflow-hidden border border-zinc-800 flex flex-col h-full shadow-lg">
-            <img src="${p.imagen}" class="w-full h-44 object-cover">
-            <div class="p-3 flex flex-col flex-1 justify-between gap-2">
+    catalog.innerHTML = products.map((p, index) => `
+        <div onclick="showProductDetail(${allProducts.indexOf(p)})" class="bg-zinc-900 rounded-3xl overflow-hidden border border-zinc-800 flex flex-col h-full shadow-lg animate-fade-in">
+            <img src="${p.imagen}" class="w-full h-40 object-cover bg-zinc-800" onerror="this.src='https://placehold.co/400x400?text=Sin+Imagen'">
+            <div class="p-4 flex flex-col flex-1 justify-between">
                 <div>
-                    <h3 class="font-bold text-[13px] leading-tight text-white">${p.nombre}</h3>
-                    <p class="text-[9px] text-primary font-bold uppercase mt-1 italic">${p.categoria}</p>
+                    <h3 class="font-bold text-sm text-white leading-tight mb-1">${p.nombre}</h3>
+                    <p class="text-[9px] text-primary font-black uppercase tracking-widest">${p.categoria}</p>
                 </div>
-                <div class="flex justify-between items-center pt-2 border-t border-zinc-800">
+                <div class="flex justify-between items-center mt-3 pt-3 border-t border-zinc-800/50">
                     <span class="text-white font-black text-lg">$${p.precio}</span>
-                    <i class="fas fa-plus-circle text-primary text-xl"></i>
+                    <div class="bg-primary/10 p-2 rounded-xl text-primary"><i class="fas fa-plus text-xs"></i></div>
                 </div>
             </div>
         </div>
@@ -66,12 +86,14 @@ function renderProducts(products) {
 function showProductDetail(index) {
     currentModalIndex = index;
     const p = allProducts[index];
+    
     document.getElementById('detail-img').src = p.imagen;
     document.getElementById('detail-cat').innerText = p.categoria;
     document.getElementById('detail-name').innerText = p.nombre;
     document.getElementById('detail-desc').innerText = p.descripcion;
     document.getElementById('detail-qty').value = 1;
     document.getElementById('item-comment').value = '';
+    
     updateDetailPrice();
     document.getElementById('detail-modal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
@@ -82,7 +104,6 @@ function updateDetailPrice() {
     const qty = parseInt(document.getElementById('detail-qty').value) || 1;
     const total = p.precio * qty;
     document.getElementById('detail-footer-price').innerText = `$${total}`;
-    document.getElementById('detail-price').innerText = `$${p.precio}`;
 }
 
 function changeDetailQty(ch) {
@@ -98,16 +119,14 @@ function closeDetail() {
 }
 
 function addToCartFromModal() {
-    cart.push({ 
-        product: allProducts[currentModalIndex], 
-        quantity: parseInt(document.getElementById('detail-qty').value), 
-        comment: document.getElementById('item-comment').value.trim() 
-    });
+    const p = allProducts[currentModalIndex];
+    const qty = parseInt(document.getElementById('detail-qty').value);
+    const comment = document.getElementById('item-comment').value.trim();
+    
+    cart.push({ product: p, quantity: qty, comment: comment });
     updateCartUI();
     closeDetail();
 }
-
-document.getElementById('add-to-cart-btn').onclick = addToCartFromModal;
 
 function updateCartUI() {
     const count = document.getElementById('cart-count');
@@ -127,7 +146,7 @@ function updateCartUI() {
                         <p class="text-[10px] text-primary font-bold">$${sub}</p>
                     </div>
                 </div>
-                <button onclick="removeItem(${i})" class="text-zinc-600"><i class="fas fa-trash"></i></button>
+                <button onclick="removeItem(${i})" class="text-zinc-600 p-2"><i class="fas fa-trash"></i></button>
             </div>
         `;
     }).join('');
@@ -151,16 +170,18 @@ function sendOrder() {
     });
     const shipping = CONFIG.costoEnvio || 0;
     message += `%0A*Subtotal:* $${subtotal}%0A*Envío:* $${shipping}%0A*TOTAL:* $${subtotal + shipping}%0A%0A`;
-    message += `*Entrega:* ${document.getElementById('address').value || "Recoge en local"}`;
+    message += `*Entrega:* ${document.getElementById('address').value || "No especificada"}`;
     window.open(`https://wa.me/${CONFIG.whatsapp}?text=${message}`);
 }
 
 function renderCategories() {
     const nav = document.getElementById('filters');
     const cats = ['Todos', ...new Set(allProducts.map(p => p.categoria))];
-    nav.innerHTML = cats.map(c => `<button onclick="filterProducts('${c}')" class="bg-zinc-800 px-5 py-3 rounded-xl text-[10px] font-bold uppercase whitespace-nowrap">${c}</button>`).join('');
+    nav.innerHTML = cats.map(c => `
+        <button onclick="filterProducts('${c}')" class="bg-zinc-800 px-5 py-3 rounded-xl text-[10px] font-bold uppercase whitespace-nowrap active:bg-primary transition-colors">${c}</button>
+    `).join('');
 }
 
 function filterProducts(cat) {
     renderProducts(cat === 'Todos' ? allProducts : allProducts.filter(p => p.categoria === cat));
-}
+                                     }
