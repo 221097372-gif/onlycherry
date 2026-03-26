@@ -15,15 +15,18 @@
         .product-card:active { transform: scale(0.95); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        /* Quantity selector style in modal */
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
     <script>
-        // Esta función inyecta la "personalidad" del negocio apenas carga la página
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('dynamic-styles').innerHTML = `
                 :root { --primary: ${CONFIG.colorPrimario}; --bg: ${CONFIG.colorFondo}; }
                 .text-primary { color: var(--primary) !important; }
                 .bg-primary { background-color: var(--primary) !important; }
                 .border-primary { border-color: var(--primary) !important; }
+                /* Terms link color */
+                .terms-link { color: var(--primary); text-decoration: underline; }
             `;
             document.title = CONFIG.nombre;
             const headerName = document.getElementById('header-name');
@@ -49,25 +52,96 @@
 
     <nav id="filters" class="p-4 flex gap-2 overflow-x-auto no-scrollbar bg-black sticky top-[72px] z-40"></nav>
 
-    <main id="catalog" class="p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+    <main id="catalog" class="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 pb-20">
         <div class="col-span-full text-center py-20 text-zinc-500">
             <i class="fas fa-spinner fa-spin text-4xl text-primary mb-4"></i>
             <p>Cargando catálogo premium...</p>
         </div>
     </main>
 
-    <div id="cart-modal" class="fixed inset-0 bg-black/95 z-[60] hidden flex flex-col p-6 backdrop-blur-md">
-        <div class="flex justify-between items-center mb-8 border-b border-zinc-800 pb-4">
-            <h2 class="text-3xl font-extrabold text-white">Tu Pedido</h2>
-            <button onclick="toggleCart()" class="text-zinc-500 text-5xl">&times;</button>
+    <div id="detail-modal" class="fixed inset-0 bg-zinc-950 z-[70] hidden flex flex-col p-6 animate-fade-in no-scrollbar overflow-y-auto">
+        <button onclick="closeDetail()" class="absolute top-4 right-6 text-white text-5xl z-10">×</button>
+        <div id="detail-content" class="flex-1 pb-24">
+            <img id="detail-img" src="" class="w-full aspect-square object-cover rounded-3xl mb-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-2">
+                <span id="detail-cat" class="text-primary font-bold uppercase tracking-widest text-[10px]"></span>
+                <span id="detail-price" class="text-3xl font-black text-white">$0</span>
+            </div>
+            <h2 id="detail-name" class="text-2xl font-black text-white mb-2"></h2>
+            <p id="detail-desc" class="text-zinc-400 text-sm leading-relaxed mb-6"></p>
+
+            <div class="mb-4">
+                <label class="block text-white font-bold text-xs uppercase mb-2 tracking-wider">Cantidad</label>
+                <div class="flex items-center gap-3 bg-zinc-800 p-3 rounded-xl border border-zinc-700 max-w-[150px]">
+                    <button onclick="changeDetailQty(-1)" class="text-white text-xl w-10 h-10 flex items-center justify-center bg-zinc-700 rounded-lg">-</button>
+                    <input type="number" id="detail-qty" value="1" min="1" class="w-full text-center bg-transparent text-white font-black text-xl outline-none">
+                    <button onclick="changeDetailQty(1)" class="text-white text-xl w-10 h-10 flex items-center justify-center bg-zinc-700 rounded-lg">+</button>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label for="item-comment" class="block text-white font-bold text-xs uppercase mb-2 tracking-wider">Talla, Color o Especificaciones (Opcional)</label>
+                <textarea id="item-comment" placeholder="Ej: Talla M, Color Rojo o Conjunto completo..." class="w-full bg-zinc-800 text-white p-4 rounded-xl border border-zinc-700 text-sm focus:border-primary outline-none" rows="3"></textarea>
+            </div>
         </div>
-        <div id="cart-items" class="flex-1 overflow-y-auto space-y-4 no-scrollbar"></div>
-        <div class="border-t border-zinc-800 pt-6 mt-6">
-            <div class="flex justify-between text-2xl font-black mb-6">
+
+        <div class="fixed bottom-6 left-6 right-6 flex justify-between items-center bg-zinc-900 p-6 rounded-3xl border border-zinc-800 shadow-2xl z-20">
+            <span class="text-3xl font-black text-white">$${p.precio}</span>
+            <button id="add-to-cart-btn" class="bg-primary text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-2 active:scale-95 transition-transform">
+                <i class="fas fa-cart-plus text-xl"></i> AGREGAR
+            </button>
+        </div>
+    </div>
+
+    <div id="cart-modal" class="fixed inset-0 bg-black/95 z-[60] hidden flex flex-col p-6 backdrop-blur-md overflow-y-auto no-scrollbar">
+        <div class="flex justify-between items-center mb-6 border-b border-zinc-800 pb-4">
+            <h2 class="text-3xl font-extrabold text-white">Tu Pedido</h2>
+            <button onclick="toggleCart()" class="text-zinc-500 text-5xl">×</button>
+        </div>
+        
+        <div id="cart-items" class="space-y-4 no-scrollbar mb-8"></div>
+
+        <div class="space-y-6 mb-10 border-t border-zinc-800 pt-8">
+            <h3 class="text-white font-bold text-sm uppercase tracking-widest flex items-center gap-2">
+                <i class="fas fa-shipping-fast text-primary"></i> Datos de Entrega
+            </h3>
+            
+            <div>
+                <label for="address" class="block text-zinc-400 text-xs uppercase mb-2 tracking-wider">Dirección Completa (Opcional para local)</label>
+                <textarea id="address" placeholder="Calle, Número, Colonia, C.P., Referencias..." class="w-full bg-zinc-800 text-white p-4 rounded-xl border border-zinc-700 text-sm focus:border-primary outline-none" rows="3"></textarea>
+            </div>
+
+            <div>
+                <label for="general-comment" class="block text-zinc-400 text-xs uppercase mb-2 tracking-wider">Comentarios Generales / Instrucciones</label>
+                <textarea id="general-comment" placeholder="(Opcional) Ej: Timbrar fuerte, dejar con vigilancia, etc..." class="w-full bg-zinc-800 text-white p-4 rounded-xl border border-zinc-700 text-sm focus:border-primary outline-none" rows="3"></textarea>
+            </div>
+        </div>
+
+        <div class="space-y-4 mb-10 border-t border-zinc-800 pt-8">
+            <h3 class="text-white font-bold text-sm uppercase tracking-widest flex items-center gap-2">
+                <i class="fas fa-file-invoice-dollar text-primary"></i> Resumen
+            </h3>
+            <div id="cart-summary-items" class="text-sm space-y-3 text-zinc-300">
+                </div>
+            <div class="flex justify-between text-base font-medium text-zinc-400 pt-2">
+                <span>Costo envío</span>
+                <span id="shipping-cost" class="font-bold text-white">$0</span>
+            </div>
+            <div class="border-t border-zinc-700 pt-4 flex justify-between text-2xl font-black mb-6">
                 <span class="text-zinc-400">TOTAL:</span>
                 <span id="cart-total" class="text-green-500">$0</span>
             </div>
-            <button onclick="sendOrder()" class="w-full bg-green-600 text-white py-5 rounded-3xl font-black text-xl flex justify-center items-center gap-3 active:scale-95 transition-transform">
+        </div>
+
+        <div class="flex items-start gap-3 mb-10 text-xs text-zinc-500 bg-zinc-900 p-5 rounded-xl border border-zinc-800">
+            <input type="checkbox" id="terms-check" class="w-6 h-6 rounded border-zinc-700 accent-primary mt-0.5">
+            <label for="terms-check">
+                Al dar click en 'Enviar por WhatsApp' declaro que he leído y aceptado los <a href="#" class="terms-link">términos, condiciones</a> y la <a href="#" class="terms-link">política de privacidad</a> de ${CONFIG.nombre}.
+            </label>
+        </div>
+
+        <div class="mt-auto pt-6 border-t border-zinc-800">
+            <button id="send-btn" onclick="sendOrder()" class="w-full bg-green-600 text-white py-5 rounded-3xl font-black text-xl flex justify-center items-center gap-3 active:scale-95 transition-transform disabled:opacity-30 disabled:pointer-events-none" disabled>
                 <i class="fab fa-whatsapp text-3xl"></i> ENVIAR POR WHATSAPP
             </button>
         </div>
@@ -80,15 +154,23 @@
 
     <script src="app.js"></script>
     <script>
-        // Pintar Redes Sociales dinámicamente
+        // Lógica de Pintar Redes Sociales dinámicamente
         const container = document.getElementById('social-links');
         if(CONFIG.instagram) container.innerHTML += `<a href="${CONFIG.instagram}" target="_blank" class="text-white text-2xl"><i class="fab fa-instagram"></i></a>`;
         if(CONFIG.facebook) container.innerHTML += `<a href="${CONFIG.facebook}" target="_blank" class="text-white text-2xl"><i class="fab fa-facebook"></i></a>`;
         if(CONFIG.tiktok) container.innerHTML += `<a href="${CONFIG.tiktok}" target="_blank" class="text-white text-2xl"><i class="fab fa-tiktok"></i></a>`;
         document.getElementById('footer-brand').innerText = `© 2026 ${CONFIG.nombre} | Powered by Arq. Tech`;
         
-        // Activar el Service Worker para que la App sea veloz
+        // Registrar Service Worker
         if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+
+        // Lógica para habilitar botón de envío según checkbox
+        const termsCheck = document.getElementById('terms-check');
+        const sendBtn = document.getElementById('send-btn');
+        termsCheck.addEventListener('change', () => {
+            sendBtn.disabled = !termsCheck.checked;
+        });
     </script>
 </body>
-</html>
+                                                                        </html>
+                    
