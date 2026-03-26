@@ -1,6 +1,6 @@
 let allProducts = [];
 let cart = []; // Estructura: [{product: p, quantity: q, comment: c}]
-let currentModalIndex = -1; // Para saber qué producto está abierto
+let currentModalIndex = -1;
 
 /**
  * Carga de Datos y Limpieza de CSV
@@ -35,14 +35,14 @@ async function loadData() {
 function renderProducts(products) {
     const catalog = document.getElementById('catalog');
     catalog.innerHTML = products.map((p) => `
-        <div onclick="showProductDetail(${allProducts.indexOf(p)})" class="product-card bg-zinc-900 rounded-3xl overflow-hidden border border-zinc-800 flex flex-col h-full shadow-lg cursor-pointer animate-fade-in">
+        <div onclick="showProductDetail(${allProducts.indexOf(p)})" class="product-card bg-zinc-900 rounded-3xl overflow-hidden border border-zinc-800 flex flex-col h-full shadow-lg cursor-pointer animate-fade-in pb-16">
             <img src="${p.imagen}" class="w-full h-40 object-cover bg-zinc-800" loading="lazy">
-            <div class="p-3 flex flex-col flex-1 pb-16">
+            <div class="p-3 flex flex-col flex-1">
                 <h3 class="font-bold text-sm leading-tight h-10 overflow-hidden text-white">${p.nombre}</h3>
                 <p class="text-[10px] text-primary font-bold tracking-widest uppercase mt-1 truncate">${p.categoria}</p>
-                <div class="mt-auto fixed bottom-3 left-3 right-3 flex justify-between items-center z-10 bg-zinc-900 pt-1">
+                <div class="mt-auto fixed bottom-3 left-3 right-3 flex justify-between items-center z-10 bg-zinc-900 pt-1 border-t border-zinc-800">
                     <span class="text-primary font-black text-lg">$${p.precio}</span>
-                    <span class="bg-white text-black p-2 rounded-lg text-xs font-bold active:bg-primary active:text-white transition-colors">
+                    <span class="bg-white text-black px-3 py-1 rounded-lg text-xs font-bold active:bg-primary active:text-white transition-colors">
                         VER DETALLE
                     </span>
                 </div>
@@ -64,6 +64,9 @@ function showProductDetail(index) {
     document.getElementById('detail-name').innerText = p.nombre;
     document.getElementById('detail-desc').innerText = p.descripcion;
     
+    // CORRECCIÓN: Llenar el precio real abajo
+    document.getElementById('detail-footer-price').innerText = `$${p.precio}`;
+    
     // Resetear inputs del modal
     document.getElementById('detail-qty').value = 1;
     document.getElementById('item-comment').value = '';
@@ -71,11 +74,13 @@ function showProductDetail(index) {
     // Configurar el botón de agregar
     const addBtn = document.getElementById('add-to-cart-btn');
     addBtn.onclick = () => addToCartFromModal();
-    addBtn.innerHTML = `<i class="fas fa-cart-plus text-xl"></i> AGREGAR A MI PEDIDO`;
 
-    // Mostrar modal
+    // Mostrar modal y bloquear scroll fondo
     document.getElementById('detail-modal').classList.remove('hidden');
-    document.body.classList.add('overflow-hidden'); // Bloquear scroll fondo
+    document.body.classList.add('overflow-hidden');
+    
+    // Resetear scroll del área de detalle
+    document.getElementById('detail-scroll-area').scrollTop = 0;
 }
 
 function closeDetail() {
@@ -93,15 +98,11 @@ function changeDetailQty(change) {
 
 // --- LÓGICA DEL CARRITO (AVANZADA) ---
 
-/**
- * Agrega el producto configurado en el modal al carrito
- */
 function addToCartFromModal() {
     const p = allProducts[currentModalIndex];
     const qty = parseInt(document.getElementById('detail-qty').value) || 1;
     const comment = document.getElementById('item-comment').value.trim();
 
-    // Estructura del carrito: [{product, quantity, comment}]
     cart.push({
         product: p,
         quantity: qty,
@@ -118,13 +119,11 @@ function updateCartUI() {
     const summaryItems = document.getElementById('cart-summary-items');
     const total = document.getElementById('cart-total');
     
-    // Actualizar contador
     count.innerText = cart.length;
     count.classList.toggle('hidden', cart.length === 0);
     
     let subtotal = 0;
     
-    // Actualizar lista interactiva del carrito
     itemsList.innerHTML = cart.map((item, i) => {
         const pSubtotal = item.product.precio * item.quantity;
         subtotal += pSubtotal;
@@ -152,7 +151,6 @@ function updateCartUI() {
         `;
     }).join('');
 
-    // Actualizar lista del Resumen (Estilo Marea Alcalina)
     summaryItems.innerHTML = cart.map(item => `
         <div class="flex justify-between items-start gap-4">
             <div class="flex-1">
@@ -163,9 +161,7 @@ function updateCartUI() {
         </div>
     `).join('');
 
-    // Calcular Total
-    const finalTotal = subtotal; // Aquí podrías sumarle un CONFIG.costoEnvio fijo
-    total.innerText = `$${finalTotal}`;
+    total.innerText = `$${subtotal}`;
 }
 
 function removeItem(i) {
@@ -174,71 +170,45 @@ function removeItem(i) {
 }
 
 function toggleCart() {
-    const cartModal = document.getElementById('cart-modal');
-    cartModal.classList.toggle('hidden');
-    document.body.classList.toggle('overflow-hidden'); // Bloquear scroll fondo
+    document.getElementById('cart-modal').classList.toggle('hidden');
+    document.body.classList.toggle('overflow-hidden');
 }
 
 /**
- * ENVÍO A WHATSAPP (Formateador Avanzado)
+ * ENVÍO A WHATSAPP (Formateador Pro)
  */
 function sendOrder() {
     if (cart.length === 0) return;
     
-    // Obtener datos extras
     const address = document.getElementById('address').value.trim();
     const generalComment = document.getElementById('general-comment').value.trim();
     const termsChecked = document.getElementById('terms-check').checked;
     
-    // Validación de términos
-    if (!termsChecked) {
-        alert("Por favor, acepta los términos y condiciones para continuar.");
-        return;
-    }
+    if (!termsChecked) { alert("Acepta los términos para continuar."); return; }
 
-    // Encabezado
     let message = `*NUEVO PEDIDO - ${CONFIG.nombre.toUpperCase()}*%0A---------------------------%0A%0A`;
-    
-    // Lista Detallada de Items (Crucial para el negocio)
     let subtotal = 0;
     cart.forEach(item => {
         const itemSubtotal = item.product.precio * item.quantity;
         subtotal += itemSubtotal;
-        
         message += `✅ *${item.product.nombre}*%0A`;
         message += `   • Cantidad: ${item.quantity}%0A`;
-        message += `   • Precio: $${item.product.precio}%0A`;
-        
-        if(item.comment) {
-            message += `   • *Nota: ${item.comment}*%0A`; // Resaltar talla/color
-        }
-        
+        message += `   • Precio x1: $${item.product.precio}%0A`;
+        if(item.comment) { message += `   • *Nota: ${item.comment}*%0A`; }
         message += `   • Subtotal: *$${itemSubtotal}*%0A%0A`;
     });
     
-    // Resumen de Costos y Total
     message += `---------------------------%0A`;
     message += `*TOTAL PRODUCTOS: $${subtotal}*%0A`;
-    message += `*TOTAL A PAGAR: $${subtotal}*%0A`; // Sumar envío aquí si aplica
+    message += `*TOTAL A PAGAR: $${subtotal}*%0A`;
     message += `---------------------------%0A%0A`;
-    
-    // Datos de Entrega y Comentarios
     message += `*DATOS DE ENTREGA*%0A`;
-    message += `• Dirección: ${address || "Recoge en sucursal/local"}%0A`;
-    
-    if(generalComment) {
-        message += `• Notas Generales: ${generalComment}%0A`;
-    }
-    
-    message += `%0A¿Me confirman disponibilidad y datos de pago?`;
-
-    // Abrir WhatsApp con el texto formateado
+    message += `• Dirección: ${address || "Recoge en sucursal"}%0A`;
+    if(generalComment) { message += `• Notas Generales: ${generalComment}%0A`; }
+    message += `%0A¿Me confirman disponibilidad?`;
     window.open(`https://wa.me/${CONFIG.whatsapp}?text=${message}`);
 }
 
-/**
- * Filtros de Categoría
- */
 function renderCategories() {
     const nav = document.getElementById('filters');
     const categories = ['Todos', ...new Set(allProducts.map(p => p.categoria))];
@@ -252,6 +222,5 @@ function filterProducts(cat) {
     renderProducts(allProducts.filter(p => p.categoria === cat));
 }
 
-// Iniciar carga de datos
 loadData();
-        
+    
