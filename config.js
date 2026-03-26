@@ -19,8 +19,13 @@ const CONFIG = {
     instagram: "https://instagram.com/onlycherry",
     facebook: "",
     tiktok: "https://tiktok.com/@onlycherry",
+    /// 5. Boton de finalizado de compra
+    costoEnvio: 50, // Cambia aquí el monto del envío
+    linkTerminos: "terminos.html",
+    linkPrivacidad: "privacidad.html"
 
-    // 5. Base de Datos (Link de Google Sheets publicado como CSV)
+    // 6. Base de Datos (Link de Google Sheets publicado como CSV)
     // El Math.random evita que el cel guarde precios viejos en la memoria
     sheetUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRibzuAMTfUTrTOZGGB7vHFTrUFKTdxx1nW1Qx2GOM9bdV_8bLiN5tEtnL3VA_xTA/pub?output=csv&v=" + Math.random()
+
 };
